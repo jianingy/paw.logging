@@ -1,0 +1,11 @@
+language: go
+go:
+  - 1.1.2
+  - 1.2
+  - tip
+env:
+  - GOARCH=amd64
+install:
+  - go get github.com/stretchr/testify/assert
+notifications:
+  email: false
