@@ -68,13 +68,13 @@ var (
 	}
 	DefaultLogWriter = os.Stdout
 
-    TemplateDebug = template.Must(template.New("ColoredDebug").Parse("{{.Time}} \033[37m[{{.Level}}] {{.Message}} \033[0m"))
-    TemplateInfo = template.Must(template.New("ColoredInfo").Parse("{{.Time}} \033[32m[{{.Level}}] {{.Message}} \033[0m"))
-    TemplateNotice = template.Must(template.New("ColoredNotice").Parse("{{.Time}} \033[34m[{{.Level}}] {{.Message}} \033[0m"))
-    TemplateWarning = template.Must(template.New("ColoredWarning").Parse("{{.Time}} \033[33m[{{.Level}}] {{.Message}} \033[0m"))
-    TemplateError = template.Must(template.New("ColoredError").Parse("{{.Time}} \033[31m[{{.Level}}] {{.Message}} \033[0m"))
-    TemplateCritical = template.Must(template.New("ColoredCritical").Parse("{{.Time}} \033[35m[{{.Level}}] {{.Message}} \033[0m"))
-    TemplateFatal = template.Must(template.New("ColoredFatal").Parse("{{.Time}} \033[30;41m[{{.Level}}] {{.Message}} \033[0m"))
+	TemplateDebug    = template.Must(template.New("ColoredDebug").Parse("{{.Time}} \033[37m[{{.Level}}] {{.Message}} \033[0m"))
+	TemplateInfo     = template.Must(template.New("ColoredInfo").Parse("{{.Time}} \033[32m[{{.Level}}] {{.Message}} \033[0m"))
+	TemplateNotice   = template.Must(template.New("ColoredNotice").Parse("{{.Time}} \033[34m[{{.Level}}] {{.Message}} \033[0m"))
+	TemplateWarning  = template.Must(template.New("ColoredWarning").Parse("{{.Time}} \033[33m[{{.Level}}] {{.Message}} \033[0m"))
+	TemplateError    = template.Must(template.New("ColoredError").Parse("{{.Time}} \033[31m[{{.Level}}] {{.Message}} \033[0m"))
+	TemplateCritical = template.Must(template.New("ColoredCritical").Parse("{{.Time}} \033[35m[{{.Level}}] {{.Message}} \033[0m"))
+	TemplateFatal    = template.Must(template.New("ColoredFatal").Parse("{{.Time}} \033[30;41m[{{.Level}}] {{.Message}} \033[0m"))
 )
 
 func LevelString(level LogLevel) string {
@@ -82,26 +82,28 @@ func LevelString(level LogLevel) string {
 }
 
 func NewLogger(name string) *Logger {
-	if logger, err := createLogger(name, DefaultLogFormat); err == nil {
-        logger.DEBUG.SetTemplate(TemplateDebug)
-        logger.INFO.SetTemplate(TemplateInfo)
-        logger.NOTICE.SetTemplate(TemplateNotice)
-        logger.WARN.SetTemplate(TemplateWarning)
-        logger.ERROR.SetTemplate(TemplateError)
-        logger.CRITICAL.SetTemplate(TemplateCritical)
-        logger.FATAL.SetTemplate(TemplateFatal)
-        return logger
-    } else {
-        panic(err)
-    }
+	logger, err := createLogger(name, DefaultLogFormat)
+	if err != nil {
+		panic(err)
+	}
+
+	logger.DEBUG.SetTemplate(TemplateDebug)
+	logger.INFO.SetTemplate(TemplateInfo)
+	logger.NOTICE.SetTemplate(TemplateNotice)
+	logger.WARN.SetTemplate(TemplateWarning)
+	logger.ERROR.SetTemplate(TemplateError)
+	logger.CRITICAL.SetTemplate(TemplateCritical)
+	logger.FATAL.SetTemplate(TemplateFatal)
+
+	return logger
 }
 
 func NewPlainLogger(name string) *Logger {
-	if logger, err := createLogger(name, DefaultLogFormat); err == nil {
-        return logger
-    } else {
-        panic(err)
-    }
+	logger, err := createLogger(name, DefaultLogFormat)
+	if err != nil {
+		panic(err)
+	}
+	return logger
 }
 
 func createLogger(name string, format string) (*Logger, error) {
@@ -149,14 +151,14 @@ func (l *Logger) SetOutputLevel(level LogLevel) {
 }
 
 func (l *Logger) SetFormat(format string) error {
-	if tmpl, err := template.New(l.name).Parse(format); err == nil {
-        l.foreachLogWriter(func(w *LogWriter) {
-            w.SetTemplate(tmpl)
-        })
-        return nil
-    } else {
-        return err
-    }
+	tmpl, err := template.New(l.name).Parse(format)
+	if err != nil {
+		return err
+	}
+	l.foreachLogWriter(func(w *LogWriter) {
+		w.SetTemplate(tmpl)
+	})
+	return nil
 }
 
 func (l *Logger) SetTimeFormat(format string) {
@@ -172,9 +174,9 @@ func (l *Logger) SetWriter(writer io.Writer) {
 		}
 	})
 
-    // set default log writer to writer. The writer will be used when user
-    // increase log output level.
-    l.defaultLogWriter = writer
+	// set default log writer to writer. The writer will be used when user
+	// increase log output level.
+	l.defaultLogWriter = writer
 }
 
 func (w *LogWriter) Printf(format string, v ...interface{}) {
@@ -202,5 +204,5 @@ func (w *LogWriter) SetWriter(writer io.Writer) {
 }
 
 func (w *LogWriter) SetTemplate(tmpl *template.Template) {
-    w.template = tmpl
+	w.template = tmpl
 }
